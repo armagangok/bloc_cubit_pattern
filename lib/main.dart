@@ -1,8 +1,10 @@
-import 'package:bloc_pattern/cubit/cat_cubit.dart';
-import 'package:bloc_pattern/repository/cat_repository.dart';
-import 'package:bloc_pattern/view/cat_view.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'cubit_fundamentals/cubit/cat_cubit.dart';
+import 'cubit_fundamentals/repository/cat_repository.dart';
+import 'cubit_fundamentals/view/cat_view.dart';
 
 void main() {
   runApp(const MyApp());

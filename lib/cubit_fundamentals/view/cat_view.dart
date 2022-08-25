@@ -1,7 +1,10 @@
-import 'package:bloc_pattern/cubit/cat_cubit.dart';
-import 'package:bloc_pattern/cubit/cat_state.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+
+import '../cubit/cat_cubit.dart';
+import '../cubit/cat_state.dart';
 
 class CatView extends StatelessWidget {
   const CatView({Key? key}) : super(key: key);

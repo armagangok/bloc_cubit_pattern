@@ -1,7 +1,8 @@
 // ignore_for_file: avoid_renaming_method_parameters
 
-import 'package:bloc_pattern/model/cat_model.dart';
 import 'package:flutter/foundation.dart';
+
+import '../model/cat_model.dart';
 
 abstract class CatState {
   const CatState();

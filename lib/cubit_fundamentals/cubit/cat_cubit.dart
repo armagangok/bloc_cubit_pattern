@@ -1,7 +1,9 @@
-import 'package:bloc_pattern/model/network_error_model.dart';
-import 'package:bloc_pattern/repository/cat_repository.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+
+import '../model/network_error_model.dart';
+import '../repository/cat_repository.dart';
 import 'cat_state.dart';
 
 class CatCubit extends Cubit<CatState> {
