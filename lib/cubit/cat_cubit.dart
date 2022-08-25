@@ -1,3 +1,4 @@
+import 'package:bloc_pattern/model/network_error_model.dart';
 import 'package:bloc_pattern/repository/cat_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -15,7 +16,6 @@ class CatCubit extends Cubit<CatState> {
       final response = await _catRepository.getCats();
       emit(CatCompleted(response));
     } on NetworkError catch (error) {
-      
       emit(CatError(error.message));
     }
   }

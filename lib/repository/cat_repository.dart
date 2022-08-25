@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import '../model/cat_model.dart';
+import '../model/network_error_model.dart';
 
 abstract class BaseCatRepository {
   Future<List<CatModel>> getCats();
@@ -23,18 +24,9 @@ class CatRepository implements BaseCatRepository {
 
       default:
         throw (NetworkError(
-          message: "",
+          message: response.body,
           statusCode: response.statusCode,
         ));
     }
   }
-}
-
-class NetworkError implements Exception {
-  final int statusCode;
-  final String message;
-  NetworkError({
-    required this.message,
-    required this.statusCode,
-  });
 }
