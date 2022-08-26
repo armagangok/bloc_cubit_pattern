@@ -1,37 +1,65 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../model/login_request_model.dart';
+import '../model/login_response_model.dart';
+import '../service/i_login_service.dart';
 
 class LoginCubit extends Cubit<LoginState> {
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final GlobalKey<FormState> formKey;
-  bool isLoginFailed = false;
 
-  LoginCubit(
-    this.emailController,
-    this.passwordController,
-    this.formKey,
-  ) : super(LoginInitial());
+  final ILoginService service;
 
-  void login() {
-    if (formKey.currentState?.validate() ?? false) {
-      //TODO service request
+  bool isLoginFail = false;
+  bool isLoading = false;
+
+  LoginCubit(this.formKey, this.emailController, this.passwordController,
+      {required this.service})
+      : super(LoginInitial());
+
+  Future<void> postUserModel() async {
+    if (formKey.currentState != null && formKey.currentState!.validate()) {
+      changeLoadingView();
+      final data = await service.postUserLogin(LoginRequestModel(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim()));
+      changeLoadingView();
+
+      if (data is LoginResponeModel) {
+        emit(LoginComplete(data));
+      }
     } else {
-      isLoginFailed = true;
-      LoginValidationState(isLoginFailed);
-      emit(LoginValidationState(isLoginFailed));
+      isLoginFail = true;
+      emit(LoginValidateState(isLoginFail));
     }
+  }
+
+  void changeLoadingView() {
+    isLoading = !isLoading;
+    emit(LoginLoadingState(isLoading));
   }
 }
 
 abstract class LoginState {}
 
-class LoginInitial extends LoginState {
-  LoginInitial();
+class LoginInitial extends LoginState {}
+
+class LoginComplete extends LoginState {
+  final LoginResponeModel model;
+
+  LoginComplete(this.model);
 }
 
-class LoginValidationState extends LoginState{
-  bool isValid;
+class LoginValidateState extends LoginState {
+  final bool isValidate;
 
-    LoginValidationState(this.isValid);
+  LoginValidateState(this.isValidate);
+}
+
+class LoginLoadingState extends LoginState {
+  final bool isLoading;
+
+  LoginLoadingState(this.isLoading);
 }

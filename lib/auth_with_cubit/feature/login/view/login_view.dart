@@ -1,78 +1,123 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/login_cubit.dart';
+import '../service/login_service.dart';
+import 'login_detail_view.dart';
 
 class LoginView extends StatelessWidget {
+  final GlobalKey<FormState> formKey = GlobalKey();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final String baseUrl = 'https://reqres.in/api';
+
   LoginView({Key? key}) : super(key: key);
 
-  final GlobalKey<FormState> formKey = GlobalKey();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => LoginCubit(
+        formKey,
         emailController,
         passwordController,
-        formKey,
+        service: LoginService(Dio(BaseOptions(baseUrl: baseUrl))),
       ),
       child: BlocConsumer<LoginCubit, LoginState>(
         listener: (context, state) {
-          // TODO: implement listener
+          if (state is LoginComplete) {
+            state.navigate(context);
+          }
         },
         builder: (context, state) {
-          return Scaffold(
-            appBar: _buildAppBar(),
-            body: Form(
-              key: formKey,
-              autovalidateMode: autoValidate(state),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  emailField(state),
-                  passwordField(),
-                  loginButton(context),
-                ],
-              ),
-            ),
-          );
+          return buildScaffold(context, state);
         },
       ),
     );
   }
 
-  AutovalidateMode autoValidate(LoginState state) => state
-          is LoginValidationState
-      ? (state.isValid ? AutovalidateMode.always : AutovalidateMode.disabled)
+  Scaffold buildScaffold(BuildContext context, LoginState state) {
+    return Scaffold(
+      appBar: buildAppBar(context),
+      body: Form(
+        key: formKey,
+        autovalidateMode: autovalidateMode(state),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            buildTextFormFieldLogin(),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+            buildTextFormFieldPassword(),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+            buildElevatedButtonLogin(context)
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildElevatedButtonLogin(BuildContext context) {
+    return BlocConsumer<LoginCubit, LoginState>(
+      listener: (context, state) {},
+      builder: (context, state) {
+        if (state is LoginComplete) {
+          return const Card(
+            child: Icon(Icons.check),
+          );
+        }
+        return ElevatedButton(
+          onPressed: context.watch<LoginCubit>().isLoading
+              ? null
+              : () {
+                  context.read<LoginCubit>().postUserModel();
+                },
+          child: context.watch<LoginCubit>().isLoading
+              ? const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: CircularProgressIndicator(),
+                )
+              : const Text('Save'),
+        );
+      },
+    );
+  }
+
+  AppBar buildAppBar(BuildContext context) {
+    return AppBar(
+      title: const Text('Cubit Login'),
+    );
+  }
+
+  AutovalidateMode autovalidateMode(LoginState state) => state
+          is LoginValidateState
+      ? (state.isValidate ? AutovalidateMode.always : AutovalidateMode.disabled)
       : AutovalidateMode.disabled;
 
-  ElevatedButton loginButton(BuildContext context) {
-    return ElevatedButton(
-      onPressed: () {
-        context.read<LoginCubit>().login();
-      },
-      child: const Text("Login"),
-    );
-  }
-
-  TextFormField passwordField() {
+  TextFormField buildTextFormFieldLogin() {
     return TextFormField(
-      decoration: _decoration(),
-      validator: (r) => (r ?? '').length > 5 ? null : 'Shorter then 5.',
-      autovalidateMode: AutovalidateMode.disabled,
+      controller: emailController,
+      validator: (value) => (value ?? '').length > 6 ? null : '6 ten kucuk',
+      decoration: const InputDecoration(
+          border: OutlineInputBorder(), labelText: 'Email'),
     );
   }
 
-  TextFormField emailField(LoginState state) {
+  TextFormField buildTextFormFieldPassword() {
     return TextFormField(
-      decoration: _decoration(),
-      validator: (r) => (r ?? '').length > 5 ? null : 'Shorter then 5.',
+      controller: passwordController,
+      validator: (value) => (value ?? '').length > 5 ? null : 'shorter then 5',
+      decoration: const InputDecoration(
+          border: OutlineInputBorder(), labelText: 'Password'),
     );
   }
+}
 
-  InputDecoration _decoration() =>
-      const InputDecoration(border: OutlineInputBorder());
-
-  AppBar _buildAppBar() => AppBar();
+extension LoginCompleteExtension on LoginComplete {
+  void navigate(BuildContext context) {
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => LoginDetialView(
+        model: model,
+      ),
+    ));
+  }
 }
