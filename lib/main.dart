@@ -1,4 +1,4 @@
-import 'package:bloc_pattern/auth_with_cubit/feature/login/view/login_view.dart';
+import 'package:bloc_pattern/screen_development/feature/view/user_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
         create: (context) {
           return CatCubit(CatRepository());
         },
-        child:  LoginView(),
+        child: const UserView(),
       ),
     );
   }
